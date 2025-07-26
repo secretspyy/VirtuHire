@@ -40,7 +40,7 @@ async def analyze_audio(file: UploadFile = File(...)):
 
     # 🔍 Analyze pause-to-speech ratio
     result = get_pause_to_speech_ratio(output_path)
-    print("Pause analysis:", result)
+    # print("Pause analysis:", result) 
 
     # Return analysis result
     return {
@@ -48,3 +48,8 @@ async def analyze_audio(file: UploadFile = File(...)):
         "file_id": file_id,
         "pause_to_speech_analysis": result
     }
+
+# ✅ Entry point to run directly with `python main.py`
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
