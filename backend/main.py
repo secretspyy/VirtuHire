@@ -48,8 +48,3 @@ async def analyze_audio(file: UploadFile = File(...)):
         "file_id": file_id,
         "pause_to_speech_analysis": result
     }
-
-# ✅ Entry point to run directly with `python main.py`
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)

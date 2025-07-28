@@ -1,0 +1,13 @@
+appId: com.virtuhire.app
+productName: VirtuHire
+directories:
+  output: release
+files:
+  - build/**/*  
+  - main.js
+  - ../backend/dist/start_backend.exe
+extraResources:
+  - from: ../backend/dist/start_backend.exe
+    to: start_backend.exe
+win:
+  target: nsis

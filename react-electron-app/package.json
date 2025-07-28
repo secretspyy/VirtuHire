@@ -1,7 +1,11 @@
 {
   "name": "react-electron-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "homepage": "./",
+  "description": "VirtuHire desktop application",
+  "author": "Ayush Hande",
   "private": true,
+  "main": "public/main.js",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -9,14 +13,47 @@
     "@testing-library/user-event": "^13.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-h5-audio-player": "^3.10.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "electron": "28.1.0",
+    "electron-builder": "^26.0.12"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "electron": "concurrently \"npm:backend\" \"npm:frontend\" \"electron .\"",
+    "frontend": "react-scripts start",
+    "backend": "node check-and-run-backend.js",
+    "dist": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.virtuhire.app",
+    "productName": "VirtuHire",
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "build/**/*",
+      "public/main.js",
+      "check-and-run-backend.js",
+      "../backend/dist/start_backend.exe"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist/start_backend.exe",
+        "to": "start_backend.exe"
+      }
+    ],
+    "extraMetadata": {
+      "main": "public/main.js"
+    },
+    "win": {
+      "target": "nsis"
+    }
   },
   "eslintConfig": {
     "extends": [
