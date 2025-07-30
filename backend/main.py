@@ -1,25 +1,27 @@
-# backend/main.py
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from analysis.filler_detection import detect_filler_words
+from analysis.audio_features import get_pause_to_speech_ratio
 from pydub import AudioSegment
 import os
 import uuid
-
-# 🔽 Import the pause-to-speech analyzer
-from analysis.audio_features import get_pause_to_speech_ratio
+import whisper
 
 app = FastAPI()
 
 # Allow frontend requests (CORS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or restrict to localhost
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Load Whisper model once (outside endpoint)
+whisper_model = whisper.load_model("base")  # Or "small", "medium" for more accuracy
 
 @app.post("/analyze-audio")
 async def analyze_audio(file: UploadFile = File(...)):
@@ -38,13 +40,23 @@ async def analyze_audio(file: UploadFile = File(...)):
     except Exception as e:
         return {"error": "Conversion failed", "details": str(e)}
 
-    # 🔍 Analyze pause-to-speech ratio
-    result = get_pause_to_speech_ratio(output_path)
-    # print("Pause analysis:", result) 
+    # Analyze pause-to-speech
+    pause_result = get_pause_to_speech_ratio(output_path)
 
-    # Return analysis result
+    # Transcribe audio with Whisper
+    try:
+        transcription = whisper_model.transcribe(output_path)
+        transcript_text = transcription.get("text", "")
+    except Exception as e:
+        transcript_text = "Transcription failed: " + str(e)
+
+    # Detect filler words using audio (you can update this to use transcript if needed)
+    filler_result = detect_filler_words(output_path)
+
     return {
         "message": "Audio processed and analyzed",
         "file_id": file_id,
-        "pause_to_speech_analysis": result
+        "pause_to_speech_analysis": pause_result,
+        "filler_word_analysis": filler_result,
+        "transcription": transcript_text
     }

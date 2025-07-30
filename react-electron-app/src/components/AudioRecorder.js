@@ -5,9 +5,11 @@ import 'react-h5-audio-player/lib/styles.css';
 function AudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState('');
+  const [pauseAnalysis, setPauseAnalysis] = useState(null);
+  const [fillerAnalysis, setFillerAnalysis] = useState(null);
+  const [transcription, setTranscription] = useState('');
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-  const [pauseAnalysis, setPauseAnalysis] = useState(null);
   const canvasRef = useRef(null);
   const animationIdRef = useRef(null);
   const analyserRef = useRef(null);
@@ -103,6 +105,8 @@ function AudioRecorder() {
 
       const result = await response.json();
       setPauseAnalysis(result.pause_to_speech_analysis || null);
+      setFillerAnalysis(result.filler_word_analysis || null);
+      setTranscription(result.transcription || '');
     } catch (err) {
       console.error('Error uploading audio:', err);
     }
@@ -168,8 +172,6 @@ function AudioRecorder() {
         </div>
       )}
 
-
-
       {pauseAnalysis && (
         <div className="bg-gray-900/60 p-6 rounded-2xl border border-gray-700 backdrop-blur-md shadow-lg">
           <h3 className="text-xl font-semibold mb-4 text-center text-green-400">
@@ -181,6 +183,36 @@ function AudioRecorder() {
             <li><span className="font-semibold">Total Speech:</span> {pauseAnalysis.total_speech_ms} ms</li>
             <li><span className="font-semibold">Pause-to-Speech Ratio:</span> {pauseAnalysis.pause_to_speech_ratio}</li>
           </ul>
+        </div>
+      )}
+
+      {fillerAnalysis && (
+        <div className="mt-8 bg-gray-900/60 p-6 rounded-2xl border border-gray-700 backdrop-blur-md shadow-lg">
+          <h3 className="text-xl font-semibold mb-4 text-center text-yellow-400">
+            🗣️ Filler Word Analysis
+          </h3>
+          {fillerAnalysis.filler_words && fillerAnalysis.filler_words.length > 0 ? (
+            <ul className="space-y-2 text-sm text-gray-200">
+              {fillerAnalysis.filler_words.map((word, index) => (
+                <li key={index}>
+                  <span className="font-semibold text-amber-400">•</span> {word}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400 text-sm italic text-center">No filler words detected.</p>
+          )}
+        </div>
+      )}
+
+      {transcription && (
+        <div className="mt-8 bg-gray-900/60 p-6 rounded-2xl border border-gray-700 backdrop-blur-md shadow-lg">
+          <h3 className="text-xl font-semibold mb-4 text-center text-blue-400">
+            📝 Transcription
+          </h3>
+          <p className="text-gray-200 text-sm whitespace-pre-wrap leading-relaxed">
+            {transcription}
+          </p>
         </div>
       )}
     </div>
