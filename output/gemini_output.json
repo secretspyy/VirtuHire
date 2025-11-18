@@ -1,0 +1,131 @@
+{
+  "role": "undefined",
+  "company": "undefined",
+  "total_questions": 10,
+  "questions": [
+    "How would you design a highly available and scalable API for an e-commerce product catalog that handles millions of requests per second?",
+    "Explain how a consistent hashing ring works and where it would be beneficial in a distributed system context.",
+    "Describe common issues when dealing with concurrent requests in a multi-threaded backend application and how you would mitigate them.",
+    "Tell me about a time you took ownership of a critical, ambiguous problem and drove it to a successful resolution.",
+    "Describe a complex technical problem you encountered where the existing solutions were inadequate; how did you approach it and what was the outcome?",
+    "You're alerted to a sudden spike in latency for a critical microservice you own. Walk me through your diagnostic and resolution process.",
+    "Compare and contrast SQL and NoSQL databases, discussing scenarios where each would be preferred for a backend service.",
+    "What are the key security considerations when building and deploying a public-facing REST API, and how do you address them?",
+    "You discover a critical bug in production that affects a small percentage of users but has a high impact. Your team has a strict release process. How do you proceed?",
+    "How do you ensure the reliability and stability of a new backend service before it reaches production?"
+  ],
+  "answers": [
+    "To design a highly available and scalable product catalog API, I would start with a stateless microservice architecture, allowing horizontal scaling. For data, a sharded NoSQL database like DynamoDB or Cassandra would be used for low-latency reads, potentially with a CDN caching product images and static data. A distributed cache (e.g., Redis) would front the database for hot items, reducing database load. Load balancers (e.g., ALB) would distribute traffic across multiple instances and availability zones, ensuring high availability. Asynchronous processing for updates (e.g., SQS/Kafka) would decouple the write path. API Gateway would handle request routing, authentication, and throttling. Monitoring and auto-scaling groups would dynamically adjust capacity based on traffic patterns. Trade-offs include increased operational complexity and eventual consistency for high availability.",
+    "Consistent hashing maps both data items and cache/server nodes onto a ring (a hash space). When a node is added or removed, only a small fraction of data needs to be remapped, typically 1/N where N is the number of nodes. This is a significant improvement over traditional modulo hashing, where adding a node would require remapping almost all data. It works by hashing both the data key and the node identifiers to positions on the ring. Each data key is assigned to the nearest node in a clockwise direction. This approach is beneficial in distributed caches (like Memcached or Redis clusters) or storage systems (like DynamoDB, Cassandra) where nodes are frequently added or removed, minimizing data migration and maximizing cache hit rates. It ensures high availability and resilience to node failures.",
+    "Common issues in multi-threaded applications include race conditions, deadlocks, and starvation. Race conditions occur when multiple threads access shared resources without proper synchronization, leading to unpredictable outcomes. Deadlocks happen when two or more threads are blocked indefinitely, each waiting for the other to release a resource. Starvation is when a thread repeatedly loses the race for a resource, preventing it from making progress. Mitigation strategies include using synchronization primitives like locks (mutexes, semaphores) to protect critical sections, ensuring proper lock ordering to prevent deadlocks, and employing atomic operations for simple shared variable updates. Thread-safe data structures, immutable objects, and message passing between threads can also simplify concurrency management and reduce common pitfalls.",
+    "In my previous role, our primary payment processing service started intermittently failing for specific transaction types, but the logs were vague and no clear owner was identified. I took the initiative to investigate. I started by correlating error timestamps with internal and external service logs, identifying a pattern tied to a third-party gateway update. The ambiguity was that the issue only manifested under specific load and data conditions. I created a precise reproduction script, which required deep diving into transaction details and payment flows. After isolating the edge case, I collaborated with the third-party support and our internal teams to develop a robust retry mechanism and a data transformation layer. The fix reduced failed transactions by 95% and improved our payment success rate metric significantly.",
+    "We had a legacy batch processing system for financial reports that took over 12 hours to run, often failing silently, which made it inadequate for daily operational needs. Existing solutions involved incrementally optimizing SQL queries, but the fundamental architecture was synchronous and single-threaded. My approach was to redesign it as a distributed, asynchronous system. I broke down the large batch job into smaller, independent tasks. We used Kafka for message queuing to decouple processing steps and a distributed task scheduler (like Apache Airflow) to manage workflows. Data aggregation and transformation were parallelized using a compute cluster. This required learning new distributed technologies and re-architecting data flows. The outcome was a system that completed reports in under 30 minutes, with real-time progress monitoring and robust error handling, dramatically improving our data availability and reliability.",
+    "Upon alert, my first step is to confirm the scope and severity using monitoring dashboards (e.g., CloudWatch, Datadog) – checking error rates, traffic patterns, and resource utilization (CPU, memory, network, disk I/O) across relevant services and dependencies. I'd then check recent deployments or configuration changes. If a change is identified, a rollback might be a quick mitigation. Otherwise, I'd drill down into logs (e.g., ELK stack) for specific error messages or unusual patterns. Concurrently, I'd examine database performance metrics or external API call latencies. If the issue points to a specific bottleneck, I'd try targeted actions like increasing instance count, adjusting database query plans, or throttling upstream requests. My focus is quickly restoring service, then deep-diving into the root cause analysis post-incident.",
+    "SQL databases (relational) enforce a strict, predefined schema, ensuring strong data consistency (ACID properties) and supporting complex queries with joins. They are ideal for applications requiring high data integrity, transactional consistency, and complex reporting, such as financial systems or e-commerce orders. NoSQL databases (non-relational) offer flexible schemas, horizontal scalability, and high availability, often sacrificing strong consistency for performance. They are categorized as key-value, document, column-family, or graph stores. NoSQL databases are preferred for applications with large volumes of unstructured or semi-structured data, high write throughput, and where denormalization or eventual consistency is acceptable, like user profiles, real-time analytics, or IoT data. Choosing between them involves trade-offs in consistency, scalability, and query flexibility.",
+    "Key security considerations for a public-facing REST API include authentication, authorization, input validation, data encryption, and protection against common web vulnerabilities. For authentication, I'd use industry standards like OAuth 2.0 or JWTs, ensuring tokens are securely transmitted and stored. Authorization would involve role-based access control (RBAC) or attribute-based access control (ABAC) to enforce granular permissions. Input validation is critical to prevent injection attacks (SQL, XSS), using libraries and frameworks that sanitize all user inputs. All data in transit and at rest must be encrypted (HTTPS, disk encryption). Furthermore, I'd implement rate limiting, API throttling to prevent DoS attacks, and secure logging practices to avoid exposing sensitive data, regularly auditing for vulnerabilities.",
+    "First, I would immediately assess the bug's full impact and scope, including identifying affected users and potential data corruption. My priority is to mitigate further impact. I'd check if a quick rollback to a previous stable version is feasible, or if a temporary disabling of the affected feature or user segment is possible via a feature flag. Concurrently, I would document the issue thoroughly, gather all relevant logs and diagnostics. Then, I’d initiate the emergency patch process, adhering to critical parts of the release process, such as code review for the fix and targeted testing, focusing on the specific bug and its immediate impact. Communication is key: inform stakeholders about the issue, mitigation steps, and expected resolution time. Post-fix, a root cause analysis and process review would be performed to prevent recurrence.",
+    "Ensuring reliability and stability starts early in the development lifecycle. I'd begin with comprehensive unit tests for individual components and integration tests for service interactions and external dependencies. End-to-end tests would validate complete user flows. Performance testing (load, stress, soak tests) would identify bottlenecks and ensure scalability under expected and peak loads. Security scans and penetration testing would uncover vulnerabilities. Before production, the service would undergo thorough staging or pre-production deployment, mirroring the production environment as closely as possible. This phase involves A/B testing, canary deployments, or dark launches to validate performance and behavior with real traffic. Observability, including detailed logging, metrics, and tracing, would be built in from day one, allowing proactive monitoring and rapid issue detection post-deployment."
+  ],
+  "keywords": [
+    [
+      "stateless microservices",
+      "horizontal scaling",
+      "sharded NoSQL database",
+      "distributed caching CDN",
+      "load balancing availability zones",
+      "asynchronous processing SQS",
+      "API Gateway throttling",
+      "auto-scaling monitoring"
+    ],
+    [
+      "consistent hashing ring",
+      "data node mapping",
+      "minimal remapping on node change",
+      "distributed cache benefits",
+      "storage system applications",
+      "node addition removal",
+      "resilience availability"
+    ],
+    [
+      "race conditions",
+      "deadlocks",
+      "starvation",
+      "synchronization primitives locks",
+      "atomic operations",
+      "thread-safe data structures",
+      "immutable objects",
+      "message passing concurrency"
+    ],
+    [
+      "ambiguous problem ownership",
+      "diagnostic investigation steps",
+      "identifying root cause",
+      "reproduction script isolation",
+      "cross-functional collaboration",
+      "robust solution implementation",
+      "measurable positive impact"
+    ],
+    [
+      "inadequate legacy system",
+      "distributed asynchronous redesign",
+      "task decomposition parallelization",
+      "message queuing Kafka",
+      "distributed task scheduler",
+      "new technology adoption",
+      "measurable performance improvement",
+      "improved reliability monitoring"
+    ],
+    [
+      "confirm scope severity",
+      "monitoring dashboards metrics",
+      "recent deployments rollback",
+      "log analysis error patterns",
+      "dependency performance check",
+      "identify bottleneck mitigation",
+      "incident resolution steps",
+      "root cause analysis"
+    ],
+    [
+      "SQL relational databases",
+      "ACID properties schema",
+      "complex joins transactions",
+      "NoSQL non-relational databases",
+      "flexible schema scalability",
+      "eventual consistency performance",
+      "data integrity use cases",
+      "high throughput use cases"
+    ],
+    [
+      "authentication OAuth JWT",
+      "authorization RBAC ABAC",
+      "input validation sanitization",
+      "data encryption HTTPS",
+      "injection XSS protection",
+      "rate limiting throttling",
+      "secure logging auditing",
+      "common web vulnerabilities"
+    ],
+    [
+      "assess impact scope",
+      "mitigate immediate damage",
+      "rollback feature flag",
+      "document triage diagnostics",
+      "emergency patch process",
+      "targeted testing code review",
+      "stakeholder communication",
+      "root cause analysis prevention"
+    ],
+    [
+      "unit integration end-to-end tests",
+      "performance load stress tests",
+      "security scans pen testing",
+      "staging pre-production environment",
+      "canary deployments dark launches",
+      "observability logging metrics tracing",
+      "proactive monitoring",
+      "issue detection reliability"
+    ]
+  ],
+  "created_at": "2025-11-15T07:36:18.632Z",
+  "source": "n8n::gemini"
+}
