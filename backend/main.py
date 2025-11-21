@@ -14,6 +14,10 @@ from routers.auth import get_current_user
 from analysis.filler_detection import detect_filler_words
 from analysis.audio_features import get_pause_to_speech_ratio
 from analysis.stress_detection import analyze_stress
+from routers.reports import router as reports_router
+
+
+
 
 # -------------------
 # DB Init
@@ -69,7 +73,7 @@ app.add_middleware(
 # ✅ Do not duplicate include_router() — just include once
 app.include_router(auth.router)     # Has prefix="/auth"
 app.include_router(profile.router)  # Has prefix="/profile"
-
+app.include_router(reports_router)  # Has prefix="/interview"
 # -------------------
 # Audio Analysis Setup
 # -------------------
